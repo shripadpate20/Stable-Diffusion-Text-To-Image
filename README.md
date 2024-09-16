@@ -86,7 +86,7 @@ output_image = generate(
 Image.fromarray(output_image).save("output.png")
 ```
 
-For more detailed usage instructions and examples, please refer to the [documentation](docs/usage.md).
+
 
 ## Model Architecture
 
