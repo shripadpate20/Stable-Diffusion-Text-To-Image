@@ -62,7 +62,7 @@ from stable_diffusion import generate, preload_models_from_standard_weights
 from transformers import CLIPTokenizer
 from PIL import Image
 
-# Load models and tokenizer
+
 tokenizer = CLIPTokenizer("tokenizer/tokenizer_vocab.json", "tokenizer/tokenizer_merges.txt")
 models = preload_models_from_standard_weights("models/v1-5-pruned-emaonly.ckpt", device="cuda")
 
@@ -70,7 +70,7 @@ models = preload_models_from_standard_weights("models/v1-5-pruned-emaonly.ckpt",
 output_image = generate(
     prompt="A serene landscape with mountains and a lake at sunset",
     uncond_prompt="",
-    input_image=None,  # For image-to-image, provide a PIL Image here
+    input_image=None,  
     strength=0.8,
     do_cfg=True,
     cfg_scale=7.5,
@@ -83,7 +83,6 @@ output_image = generate(
     tokenizer=tokenizer,
 )
 
-# Save the generated image
 Image.fromarray(output_image).save("output.png")
 ```
 
