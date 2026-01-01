@@ -11,7 +11,7 @@ class VAE_AttentionBlock(nn.Module):
 
     def forward(self,x):
         #(Batch_size, channels(Features), Hight, Width)
-        n, c, h, w = x.shpae
+        n, c, h, w = x.shape
         residue = x
     
         x = self.groupnorm(x)
