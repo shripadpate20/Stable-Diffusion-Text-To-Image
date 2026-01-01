@@ -28,7 +28,7 @@ class CLIPlayer(nn.Module):
     def forward(self,x):
         residual = x
         x = self.layernorm_1(x)
-        x = self.Attention(x,causal_mask=True)
+        x = self.attention(x,causal_mask=True)
         x += residual
 
         residual = x 
