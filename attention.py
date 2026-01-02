@@ -20,7 +20,7 @@ class SelfAttention(nn.Module):
         # x ->(Batch_size, Seq_len, Dim)
         batch_size, seq_len , Dim = x.shape
 
-        k, q, v = self.in_proj(x).chunk(3, dim =-1)
+        q, k, v = self.in_proj(x).chunk(3, dim=-1)
         #(batch_size, seq_len, H, Dim/H) ->(batch_size, H, seq_len, Dim/H)
         k = k.view(batch_size, seq_len, self.n_heads, self.d_head).transpose(1, 2)
         q = q.view(batch_size, seq_len, self.n_heads, self.d_head).transpose(1, 2)

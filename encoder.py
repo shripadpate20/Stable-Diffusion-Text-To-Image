@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 from decoder import VAE_AttentionBlock, VAE_ResidualBlock
 
-class VAE_Enocder(nn.Sequential):
+class VAE_Encoder(nn.Sequential):
     def __init__(self):
         super().__init__(
             nn.Conv2d(3,128,kernel_size=3,padding=1),
@@ -34,7 +34,7 @@ class VAE_Enocder(nn.Sequential):
                  x = F.pad(x, (0, 1, 0, 1))
 
             x = module(x)
-        mean , log_var = torch.chunk(x,2,din =1)
+        mean , log_var = torch.chunk(x, 2, dim=1)
         log_var = torch.clamp(log_var,-30,20)
         var = log_var.exp()
         stdev = var.sqrt()

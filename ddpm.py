@@ -25,13 +25,13 @@ class DDPMSampler:
         prev_t = timestep - self.num_training_steps // self.num_inference_steps
         return prev_t
     
-    def _get_variance(self,timestep: int) ->int:
+    def _get_variance(self, timestep: int) -> torch.Tensor:
         prev_t = self.get_previous_timestep(timestep)
         alpha_prod_t = self.alpha_cumprod[timestep]
         alpha_prod_t_prev = self.alpha_cumprod[prev_t] if prev_t >=0 else self.one
         current_alpha_t = alpha_prod_t / alpha_prod_t_prev
         current_beta_t = 1 - current_alpha_t
-         # forumla 7
+         # formula 7
         variance = (1 - alpha_prod_t_prev) / (1 - alpha_prod_t) *current_beta_t
 
         return torch.clamp(variance, min = 1e-20)
@@ -57,15 +57,15 @@ class DDPMSampler:
         current_alpha_t = alpha_prod_t / alpha_prod_t_prev
         current_beta_t = 1 - current_alpha_t
 
-        # predicted orignal sample from predicted noice x_0(formula 15)
-        pred_orignal_sample = (latents - beta_prod_t **(0.5)* model_output) / alpha_prod_t **(0.5)
+        # predicted original sample from predicted noise x_0 (formula 15)
+        pred_original_sample = (latents - beta_prod_t ** (0.5) * model_output) / alpha_prod_t ** (0.5)
 
-        # compute the coefficient for orignal sample x_0 and prtedicted sample x_t formula(7)
-        pred_orignal_sample_coeff = (alpha_prod_t_prev ** 0.5 * current_beta_t) / beta_prod_t
+        # compute the coefficient for original sample x_0 and predicted sample x_t formula(7)
+        pred_original_sample_coeff = (alpha_prod_t_prev ** 0.5 * current_beta_t) / beta_prod_t
         current_sample_coeff = (current_alpha_t ** 0.5 * beta_prod_t_prev) / beta_prod_t
 
-        #compute the predicetd sample mean
-        pred_prev_sample = pred_orignal_sample_coeff * pred_orignal_sample + current_sample_coeff * latents
+        # compute the predicted sample mean
+        pred_prev_sample = pred_original_sample_coeff * pred_original_sample + current_sample_coeff * latents
 
         variance = 0
         if t>0:
@@ -78,23 +78,23 @@ class DDPMSampler:
         return pred_prev_sample
 
 
-    def add_noise(self, orignal_samples: torch.FloatTensor, timesteps: torch.IntTensor)-> torch.FloatTensor:
-        alpha_cumprod = self.alpha_cumprod.to(device=orignal_samples.device, dtype=orignal_samples.dtype)
-        timesteps = timesteps.to(orignal_samples.device)
+    def add_noise(self, original_samples: torch.FloatTensor, timesteps: torch.IntTensor) -> torch.FloatTensor:
+        alpha_cumprod = self.alpha_cumprod.to(device=original_samples.device, dtype=original_samples.dtype)
+        timesteps = timesteps.to(original_samples.device)
 
         sqrt_alpha_prod = alpha_cumprod[timesteps] ** 0.5
         sqrt_alpha_prod = sqrt_alpha_prod.flatten()
-        while len(sqrt_alpha_prod.shape) < len(orignal_samples.shape):
+        while len(sqrt_alpha_prod.shape) < len(original_samples.shape):
             sqrt_alpha_prod = sqrt_alpha_prod.unsqueeze(-1)
 
         sqrt_one_minus_alpha_prod = (1 - alpha_cumprod[timesteps]) ** 0.5
         sqrt_one_minus_alpha_prod = sqrt_one_minus_alpha_prod.flatten()
-        while len(sqrt_one_minus_alpha_prod.shape) < len(orignal_samples.shape):
+        while len(sqrt_one_minus_alpha_prod.shape) < len(original_samples.shape):
             sqrt_one_minus_alpha_prod = sqrt_one_minus_alpha_prod.unsqueeze(-1)
          
-        noise = torch.randn(orignal_samples.shape, generator=self.generator, device=orignal_samples.device, dtype=orignal_samples.dtype)
-        # formula(4) of DDMP paper
-        noisy_samples = sqrt_alpha_prod *orignal_samples + sqrt_one_minus_alpha_prod * noise
+        noise = torch.randn(original_samples.shape, generator=self.generator, device=original_samples.device, dtype=original_samples.dtype)
+        # formula(4) of DDPM paper
+        noisy_samples = sqrt_alpha_prod * original_samples + sqrt_one_minus_alpha_prod * noise
         return noisy_samples
 
 
